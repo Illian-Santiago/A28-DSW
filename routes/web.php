@@ -18,3 +18,26 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/auth/github/redirect', function () {
+    return Socialite::driver('github')->redirect();
+});
+    
+Route::get('/auth/github/callback', function () {
+    $githubUser = Socialite::driver('github')->user();
+
+    $user = App\Models\User::UpdateOrCreate([
+            'name' => $githubUser->name,
+            'nickname' => $githubUser->nickname,
+            'email' => $githubUser->email,
+            'avatar' => $githubUser->avatar,
+            'github_id' => $githubUser->id,
+            'github_token' => $githubUser->token,
+            'github_refresh_token' => $githubUser->refreshToken,
+    ]);
+    
+    Auth::login($user);
+    
+    return redirect('/dashboard');
+});
