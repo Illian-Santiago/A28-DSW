@@ -27,15 +27,17 @@ Route::get('/auth/github/redirect', function () {
 Route::get('/auth/github/callback', function () {
     $githubUser = Socialite::driver('github')->user();
 
-    $user = App\Models\User::UpdateOrCreate([
+    $user = App\Models\User::UpdateOrCreate(
+        ['github_id' => $githubUser->id],
+        [
             'name' => $githubUser->name,
             'nickname' => $githubUser->nickname,
             'email' => $githubUser->email,
             'avatar' => $githubUser->avatar,
-            'github_id' => $githubUser->id,
             'github_token' => $githubUser->token,
             'github_refresh_token' => $githubUser->refreshToken,
-    ]);
+        ]
+    );
     
     Auth::login($user);
     
