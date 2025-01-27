@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServicesController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,27 +20,10 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+Route::controller(ServicesController::class)->group(function(){
+    Route::get('auth/github', 'redirectToGithub');
+    Route::get('auth/github/callback', 'handleGithubCallback');
 
-Route::get('/auth/github/redirect', function () {
-    return Socialite::driver('github')->redirect();
-});
-    
-Route::get('/auth/github/callback', function () {
-    $githubUser = Socialite::driver('github')->user();
-
-    $user = App\Models\User::UpdateOrCreate(
-        ['github_id' => $githubUser->id],
-        [
-            'name' => $githubUser->name,
-            'nickname' => $githubUser->nickname,
-            'email' => $githubUser->email,
-            'avatar' => $githubUser->avatar,
-            'github_token' => $githubUser->token,
-            'github_refresh_token' => $githubUser->refreshToken,
-        ]
-    );
-    
-    Auth::login($user);
-    
-    return redirect('/dashboard');
+    Route::get('auth/google', 'redirectToGoogle');
+    Route::get('auth/google/callback', 'handleGoogleCallback');
 });
